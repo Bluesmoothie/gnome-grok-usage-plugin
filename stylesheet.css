@@ -1,0 +1,80 @@
+.grok-quota-icon {
+    margin: 0;
+}
+
+.grok-quota-label {
+    margin-left: 4px;
+    font-weight: bold;
+}
+
+.grok-quota-label.warn {
+    color: #e5a50a;
+}
+
+.grok-quota-label.critical {
+    color: #e01b24;
+}
+
+.grok-quota-menu {
+    min-width: 280px;
+}
+
+.grok-title {
+    font-weight: bold;
+}
+
+.grok-muted,
+.grok-detail {
+    font-size: 0.9em;
+}
+
+.grok-detail {
+    margin-top: 3px;
+}
+
+.grok-row {
+    padding-top: 2px;
+    padding-bottom: 2px;
+}
+
+.grok-row-label {
+    font-weight: bold;
+}
+
+.grok-track {
+    min-width: 220px;
+    height: 6px;
+    margin-top: 4px;
+    border-radius: 3px;
+    background-color: rgba(255, 255, 255, 0.16);
+}
+
+.grok-fill {
+    height: 6px;
+    border-radius: 3px;
+    background-color: #62a0ea;
+}
+
+.grok-fill.ok {
+    background-color: #57e389;
+}
+
+.grok-fill.warn {
+    background-color: #e5a50a;
+}
+
+.grok-fill.critical {
+    background-color: #e01b24;
+}
+
+.grok-fill.chat {
+    background-color: #62a0ea;
+}
+
+.grok-fill.build {
+    background-color: #c061cb;
+}
+
+.grok-fill.other {
+    background-color: #b5835a;
+}

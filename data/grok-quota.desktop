@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Grok Quota
+Comment=Affiche le quota Grok (chat, build, autres) dans la barre
+Exec=/usr/bin/python3 @ROOT@/scripts/indicator.py
+Icon=utilities-system-monitor
+Terminal=false
+Categories=Utility;
+X-GNOME-Autostart-enabled=true

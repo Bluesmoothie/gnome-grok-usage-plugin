@@ -1,0 +1,8 @@
+{
+  "uuid": "grok-quota@ygille",
+  "name": "Grok Quota",
+  "description": "Affiche dans la barre GNOME le quota Grok, avec la part du chat, de Grok Build et des autres usages.",
+  "shell-version": ["42"],
+  "settings-schema": "org.gnome.shell.extensions.grok-quota",
+  "version": 1
+}

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="org.gnome.shell.extensions.grok-quota" path="/org/gnome/shell/extensions/grok-quota/">
+    <key name="refresh-interval" type="i">
+      <default>300</default>
+      <range min="60" max="3600"/>
+      <summary>Intervalle de rafraîchissement</summary>
+      <description>Secondes entre deux lectures du quota.</description>
+    </key>
+    <key name="warn-threshold" type="i">
+      <default>70</default>
+      <range min="1" max="100"/>
+      <summary>Seuil d'attention</summary>
+      <description>Pourcentage à partir duquel le total passe à l'orange.</description>
+    </key>
+    <key name="critical-threshold" type="i">
+      <default>90</default>
+      <range min="1" max="100"/>
+      <summary>Seuil critique</summary>
+      <description>Pourcentage à partir duquel le total passe au rouge.</description>
+    </key>
+    <key name="grok-home" type="s">
+      <default>""</default>
+      <summary>Dossier de configuration Grok</summary>
+      <description>Chemin absolu du dossier qui contient auth.json. Vide : ~/.grok, ou GROK_HOME.</description>
+    </key>
+    <key name="proxy-base-url" type="s">
+      <default>""</default>
+      <summary>URL de base du proxy CLI</summary>
+      <description>Vide : https://cli-chat-proxy.grok.com/v1. Utile pour un proxy d'entreprise.</description>
+    </key>
+  </schema>
+</schemalist>
