@@ -7,6 +7,7 @@ quand la liste des extensions GNOME Shell est verrouillée.
 
 import json
 import os
+import shutil
 import subprocess
 import threading
 from pathlib import Path
@@ -24,6 +25,62 @@ USAGE_URI = "https://grok.com/?_s=usage"
 INTERVAL = max(60, int(os.environ.get("GROK_QUOTA_INTERVAL", "300")))
 
 
+def node_version(executable):
+    try:
+        completed = subprocess.run(
+            [str(executable), "-p", "process.versions.node"],
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
+        parts = []
+        for piece in completed.stdout.strip().split("."):
+            if not piece.isdigit():
+                return ()
+            parts.append(int(piece))
+        return tuple(parts)
+    except (OSError, subprocess.TimeoutExpired):
+        return ()
+
+
+def node_binary():
+    # Hors terminal, `node` est souvent /usr/bin/node 12, qui ne connaît ni
+    # `node:` ni fetch. On prend le Node 18+ le plus récent, y compris nvm.
+    override = os.environ.get("GROK_QUOTA_NODE", "").strip()
+    candidates = []
+    if override:
+        candidates.append(Path(override))
+    nvm = Path.home() / ".nvm" / "versions" / "node"
+    if nvm.is_dir():
+        candidates.extend(sorted(nvm.glob("*/bin/node")))
+    found = shutil.which("node")
+    if found:
+        candidates.append(Path(found))
+    candidates.append(Path("/usr/local/bin/node"))
+    candidates.append(Path("/usr/bin/node"))
+
+    best = None
+    best_version = ()
+    seen = set()
+    for candidate in candidates:
+        if not candidate.is_file():
+            continue
+        resolved = candidate.resolve()
+        if resolved in seen:
+            continue
+        seen.add(resolved)
+        version = node_version(resolved)
+        if version >= (18, 0, 0) and version > best_version:
+            best = resolved
+            best_version = version
+    if best is None:
+        raise RuntimeError(
+            "Node.js 18 ou plus récent est introuvable. /usr/bin/node est trop ancien."
+        )
+    return str(best)
+
+
 class QuotaIndicator:
     def __init__(self):
         self.indicator = AppIndicator.Indicator.new(
@@ -31,9 +88,8 @@ class QuotaIndicator:
             "utilities-system-monitor-symbolic",
             AppIndicator.IndicatorCategory.APPLICATION_STATUS,
         )
-        self.indicator.set_icon_theme_path(str(ROOT / "icons"))
-        self.indicator.set_icon_full("grok-quota-symbolic", "Quota Grok")
         self.indicator.set_status(AppIndicator.IndicatorStatus.ACTIVE)
+        self._node = node_binary()
         self.indicator.set_label("…", "100%")
         self.indicator.set_title("Quota Grok")
         self.menu = Gtk.Menu()
@@ -52,16 +108,22 @@ class QuotaIndicator:
     def _load(self):
         try:
             completed = subprocess.run(
-                ["node", str(SCRIPT), "--json"],
+                [self._node, str(SCRIPT), "--json"],
                 check=False,
                 capture_output=True,
                 text=True,
                 timeout=30,
                 cwd=str(ROOT),
             )
-            data = json.loads(completed.stdout or "{}")
-            if not data.get("ok") and completed.stderr.strip() and "error" not in data:
-                data = {"ok": False, "error": completed.stderr.strip()}
+            raw = (completed.stdout or "").strip()
+            try:
+                data = json.loads(raw) if raw else {}
+            except json.JSONDecodeError:
+                data = {}
+            if not data.get("ok"):
+                detail = data.get("error") or (completed.stderr or "").strip()
+                first = detail.splitlines()[0] if detail else "Quota indisponible."
+                data = {"ok": False, "error": first[:240]}
         except Exception as error:
             data = {"ok": False, "error": str(error)}
         GLib.idle_add(self._render, data)
